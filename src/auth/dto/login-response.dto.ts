@@ -5,4 +5,4 @@ export class LoginResponseDto {
     email: string;
     name: string;
   };
-} 
+}

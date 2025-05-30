@@ -1,4 +1,10 @@
-import { IsOptional, IsString, Matches, MinLength, MaxLength } from 'class-validator';
+import {
+  IsOptional,
+  IsString,
+  Matches,
+  MinLength,
+  MaxLength,
+} from 'class-validator';
 
 export class UpdateUserDto {
   @IsOptional()
@@ -15,7 +21,8 @@ export class UpdateUserDto {
   @MinLength(12)
   @MaxLength(20)
   @Matches(/^(?=.*[a-z])(?=.*[0-9])(?=.*[!@#$%^&*])[a-z0-9!@#$%^&*]+$/, {
-    message: 'Password must contain lowercase letters, numbers, and special characters',
+    message:
+      'Password must contain lowercase letters, numbers, and special characters',
   })
   password?: string;
-} 
+}
