@@ -8,13 +8,13 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import * as bcrypt from 'bcrypt';
-import { PrismaClient } from '@prisma/client';
+import { Prisma, User } from '@prisma/client';
 
 @Injectable()
 export class UsersService {
   constructor(private prisma: PrismaService) {}
 
-  async findById(id: number) {
+  async findById(id: number): Promise<User> {
     try {
       const user = await this.prisma.user.findUnique({
         where: { id },
@@ -31,7 +31,7 @@ export class UsersService {
     }
   }
 
-  async findByEmail(emailId: string) {
+  async findByEmail(emailId: string): Promise<User> {
     try {
       const user = await this.prisma.user.findUnique({
         where: { emailId },
@@ -78,7 +78,7 @@ export class UsersService {
       if (error instanceof ConflictException) {
         throw error;
       }
-      if (error instanceof PrismaClient.PrismaClientKnownRequestError) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
         throw new ConflictException('Error creating user');
       }
       throw error;
@@ -95,10 +95,7 @@ export class UsersService {
         throw new NotFoundException('User not found');
       }
 
-      const updateData: {
-        username?: string;
-        password?: string;
-      } = {};
+      const updateData: Prisma.UserUpdateInput = {};
 
       if (updateUserDto.username) {
         updateData.username = updateUserDto.username;
@@ -123,7 +120,7 @@ export class UsersService {
       if (error instanceof NotFoundException) {
         throw error;
       }
-      if (error instanceof PrismaClient.PrismaClientKnownRequestError) {
+      if (error instanceof Prisma.PrismaClientKnownRequestError) {
         throw new ConflictException('Error updating user');
       }
       throw error;
