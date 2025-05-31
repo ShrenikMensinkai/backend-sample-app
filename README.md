@@ -77,7 +77,7 @@ Content-Type: application/json
 {
   "email": "user@example.com",
   "password": "password123",
-  "username": "username"
+  "username": "홍길동"
 }
 ```
 Response: `201 Created`
@@ -85,7 +85,7 @@ Response: `201 Created`
 {
   "id": 1,
   "email": "user@example.com",
-  "username": "username",
+  "username": "홍길동",
   "createdAt": "2024-03-20T10:00:00Z"
 }
 ```
@@ -118,7 +118,7 @@ Response: `200 OK`
   "records": [
     {
       "userId": 1,
-      "username": "username",
+      "username": "홍길동",
       "loginAt": "2024-03-20 15:30:45",
       "ipAddress": "127.0.0.1"
     }
@@ -137,7 +137,7 @@ Response: `200 OK`
 {
   "rankings": [
     {
-      "username": "user1",
+      "username": "홍길동",
       "loginCount": 15,
       "rank": 1,
       "usersWithSameRank": 1
@@ -185,7 +185,7 @@ Response: `200 OK`
       "title": "Post Title",
       "content": "Post content",
       "author": {
-        "username": "username"
+        "username": "홍길동"
       },
       "createdAt": "2024-03-20T10:00:00Z"
     }
@@ -231,7 +231,7 @@ Response: `200 OK`
       "id": 1,
       "content": "Comment content",
       "author": {
-        "username": "username"
+        "username": "홍길동"
       },
       "createdAt": "2024-03-20T10:00:00Z"
     }
