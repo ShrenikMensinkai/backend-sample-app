@@ -16,6 +16,7 @@ model User {
   updatedAt DateTime  @updatedAt @map("updated_at")
   posts     Post[]
   comments  Comment[]
+  logins    LoginRecord[]
 
   @@map("users")
 }
@@ -44,4 +45,16 @@ model Comment {
   post      Post     @relation(fields: [postId], references: [id])
 
   @@map("comments")
+}
+
+model LoginRecord {
+  id        Int      @id @default(autoincrement())
+  userId    Int      @map("user_id")
+  ipAddress String   @map("ip_address")
+  loginAt   DateTime @default(now()) @map("login_at")
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("login_records")
+  @@index([userId])
+  @@index([loginAt])
 }
