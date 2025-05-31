@@ -1,62 +1,337 @@
+# NestJS Backend Sample Application
 
-## Description
+A robust backend application built with NestJS, PostgreSQL, and Prisma, featuring user authentication, post management, comments, and login tracking.
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+## Architecture
 
-## Project setup
+### Tech Stack
+- **Framework**: NestJS
+- **Database**: PostgreSQL
+- **ORM**: Prisma
+- **Authentication**: JWT
+- **Containerization**: Docker & Docker Compose
 
-```bash
-$ npm install
+### System Components
+1. **Authentication System**
+   - JWT-based authentication
+   - User registration and login
+   - Login tracking and analytics
+   - Weekly login rankings
+
+2. **User Management**
+   - User registration
+   - Profile management
+   - Secure password handling with bcrypt
+
+3. **Content Management**
+   - Post creation and management
+   - Comment system with pagination
+   - User-post and user-comment relationships
+
+4. **Database Schema**
+   ```
+   User
+   ├── id (PK)
+   ├── emailId (unique)
+   ├── password (hashed)
+   ├── username
+   ├── createdAt
+   ├── updatedAt
+   ├── posts (1:N)
+   ├── comments (1:N)
+   └── logins (1:N)
+
+   Post
+   ├── id (PK)
+   ├── title
+   ├── content
+   ├── createdAt
+   ├── updatedAt
+   ├── authorId (FK)
+   └── comments (1:N)
+
+   Comment
+   ├── id (PK)
+   ├── content
+   ├── createdAt
+   ├── updatedAt
+   ├── authorId (FK)
+   └── postId (FK)
+
+   LoginRecord
+   ├── id (PK)
+   ├── userId (FK)
+   ├── ipAddress
+   └── loginAt
+   ```
+
+## API Documentation
+
+### Authentication APIs
+
+#### Register User
+```http
+POST /api/auth/register
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "password123",
+  "username": "username"
+}
+```
+Response: `201 Created`
+```json
+{
+  "id": 1,
+  "email": "user@example.com",
+  "username": "username",
+  "createdAt": "2024-03-20T10:00:00Z"
+}
 ```
 
-## Compile and run the project
+#### Login
+```http
+POST /api/auth/login
+Content-Type: application/json
 
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
+{
+  "email": "user@example.com",
+  "password": "password123"
+}
+```
+Response: `200 OK`
+```json
+{
+  "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+}
 ```
 
-## Run tests
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+#### Get Login Records
+```http
+GET /api/auth/login-records/:userId
+Authorization: Bearer <token>
+```
+Response: `200 OK`
+```json
+{
+  "records": [
+    {
+      "userId": 1,
+      "username": "username",
+      "loginAt": "2024-03-20 15:30:45",
+      "ipAddress": "127.0.0.1"
+    }
+  ],
+  "total": 1
+}
 ```
 
-## Deployment
-
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
-
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
-
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+#### Get Weekly Rankings
+```http
+GET /api/auth/rankings
+Authorization: Bearer <token>
+```
+Response: `200 OK`
+```json
+{
+  "rankings": [
+    {
+      "username": "user1",
+      "loginCount": 15,
+      "rank": 1,
+      "usersWithSameRank": 1
+    }
+  ],
+  "totalUsers": 1
+}
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### Post APIs
 
-## Resources
+#### Create Post
+```http
+POST /api/posts
+Authorization: Bearer <token>
+Content-Type: application/json
 
-Check out a few resources that may come in handy when working with NestJS:
+{
+  "title": "Post Title",
+  "content": "Post content"
+}
+```
+Response: `201 Created`
+```json
+{
+  "id": 1,
+  "title": "Post Title",
+  "content": "Post content",
+  "authorId": 1,
+  "createdAt": "2024-03-20T10:00:00Z"
+}
+```
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+#### Get Posts
+```http
+GET /api/posts?cursor=1&limit=10
+Authorization: Bearer <token>
+```
+Response: `200 OK`
+```json
+{
+  "posts": [
+    {
+      "id": 1,
+      "title": "Post Title",
+      "content": "Post content",
+      "author": {
+        "username": "username"
+      },
+      "createdAt": "2024-03-20T10:00:00Z"
+    }
+  ],
+  "nextCursor": 2,
+  "total": 1
+}
+```
+
+### Comment APIs
+
+#### Create Comment
+```http
+POST /api/posts/:postId/comments
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "content": "Comment content"
+}
+```
+Response: `201 Created`
+```json
+{
+  "id": 1,
+  "content": "Comment content",
+  "authorId": 1,
+  "postId": 1,
+  "createdAt": "2024-03-20T10:00:00Z"
+}
+```
+
+#### Get Comments
+```http
+GET /api/posts/:postId/comments?cursor=1
+Authorization: Bearer <token>
+```
+Response: `200 OK`
+```json
+{
+  "comments": [
+    {
+      "id": 1,
+      "content": "Comment content",
+      "author": {
+        "username": "username"
+      },
+      "createdAt": "2024-03-20T10:00:00Z"
+    }
+  ],
+  "nextCursor": 2,
+  "total": 1
+}
+```
+
+## Setup and Running
+
+### Prerequisites
+- Docker and Docker Compose
+- Node.js (for local development)
+- PostgreSQL (for local development)
+
+### Environment Setup
+1. Copy environment file:
+   ```bash
+   cp .env.example .env
+   ```
+2. Update environment variables in `.env` if needed
+
+### Running with Docker
+
+1. **First-time Setup**
+   ```bash
+   # Make entrypoint script executable
+   chmod +x docker-entrypoint.sh
+
+   # Build and start services
+   docker-compose up -d --build
+
+   # Create initial database and run migrations
+   docker-compose exec app npx prisma migrate dev --name init
+   ```
+
+2. **Verify Service**
+   ```bash
+   # Check if service is running
+   curl http://localhost:3001/api/health
+   ```
+
+3. **Useful Commands**
+   ```bash
+   # View logs
+   docker-compose logs -f
+
+   # Stop services
+   docker-compose down
+
+   # Restart services
+   docker-compose restart
+   ```
+
+### Development
+
+1. **Database Management**
+   ```bash
+   # Create new migration
+   docker-compose exec app npx prisma migrate dev --name your_migration_name
+
+   # View database
+   docker-compose exec app npx prisma studio
+
+   # Reset database (development only)
+   docker-compose exec app npx prisma migrate reset
+   ```
+
+## Security Features
+
+1. **Authentication**
+   - JWT-based authentication
+   - Password hashing with bcrypt
+   - Token expiration (20 minutes)
+
+2. **Rate Limiting**
+   - Login attempts limited
+   - API request rate limiting
+
+3. **Data Protection**
+   - Input validation
+   - SQL injection prevention (Prisma)
+   - XSS protection
+
+## Error Handling
+
+The API uses standard HTTP status codes:
+- `200 OK`: Successful request
+- `201 Created`: Resource created
+- `400 Bad Request`: Invalid input
+- `401 Unauthorized`: Authentication required
+- `403 Forbidden`: Insufficient permissions
+- `404 Not Found`: Resource not found
+- `500 Internal Server Error`: Server error
+
+## Contributing
+
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
