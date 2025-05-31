@@ -10,6 +10,7 @@ A robust backend application built with NestJS, PostgreSQL, and Prisma, featurin
 - **ORM**: Prisma
 - **Authentication**: JWT
 - **Containerization**: Docker & Docker Compose
+- **Unittest**: Jest
 
 ### System Components
 1. **Authentication System**
@@ -290,7 +291,7 @@ Response: `200 OK`
 ### Development
 
 1. **Database Management**
-   ```bash
+```bash
    # Create new migration
    docker-compose exec app npx prisma migrate dev --name your_migration_name
 
@@ -335,3 +336,32 @@ The API uses standard HTTP status codes:
 3. Commit your changes
 4. Push to the branch
 5. Create a Pull Request
+
+## Running Test Cases
+
+This project includes comprehensive unit tests for all major services, including authentication, posts, comments, health checks, and database integration. The tests are written using Jest and cover both successful operations and error scenarios.
+
+### How to Run Tests
+
+To run all test cases, use the following command:
+
+```
+npm test
+```
+
+You can also use these commands for additional test options:
+
+- Run tests in watch mode (auto-restart on file changes):
+  ```
+  npm run test:watch
+  ```
+- Run tests with coverage report:
+  ```
+  npm run test:cov
+  ```
+- Run a specific test file:
+  ```
+  npx jest path/to/file.spec.ts
+  ```
+
+Test results will be displayed in the terminal, showing which tests passed or failed.
